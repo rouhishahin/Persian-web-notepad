@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>دفترچه یادداشت هوشمند و دائم</title>
+    
+    <style>
+        /* کلاس‌های فونت آفلاین */
+        .font-tahoma { font-family: Tahoma, Arial, sans-serif; }
+        .font-times { font-family: 'Times New Roman', Times, serif; }
+        .font-courier { font-family: 'Courier New', Courier, monospace; }
+
+        body { 
+            background-color: #f4f6f9; margin: 0; padding: 20px; 
+            color: #000; line-height: 1.8; transition: font-family 0.3s;
+        }
+        
+        .container { max-width: 1300px; margin: auto; }
+        
+        .admin-panel { 
+            background: #2c3e50; padding: 20px; border-radius: 10px; margin-bottom: 30px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .panel-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; align-items: center; }
+        .panel-divider { height: 1px; background: #455a64; width: 100%; margin: 5px 0; }
+        
+        .action-btn { 
+            padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; 
+            font-weight: bold; color: #fff; font-family: inherit; font-size: 14px; transition: all 0.3s;
+        }
+        .btn-download { background-color: #e74c3c; }
+        .btn-download:hover { background-color: #c0392b; transform: scale(1.02); }
+        .btn-layout { background-color: #3498db; }
+        .btn-layout:hover { background-color: #2980b9; transform: scale(1.02); }
+        .btn-pdf { background-color: #8e44ad; }
+        .btn-pdf:hover { background-color: #732d91; transform: scale(1.02); }
+        .btn-format { background-color: #95a5a6; color: #111; }
+        .btn-format:hover { background-color: #bdc3c7; }
+        .btn-add { background-color: #27ae60; }
+        .btn-add:hover { background-color: #219653; transform: scale(1.02); }
+        .btn-unhighlight { background-color: #ecf0f1; color: #000; }
+        .btn-unhighlight:hover { background-color: #bdc3c7; }
+
+        .color-circle {
+            width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; 
+            cursor: pointer; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .color-circle:hover { transform: scale(1.2); }
+
+        select.custom-select {
+            padding: 10px; border-radius: 5px; font-family: inherit; border: none;
+            background: #ecf0f1; font-weight: bold; cursor: pointer;
+        }
+
+        .global-notes-area {
+            width: 100%; min-height: 80px; padding: 10px; border-radius: 5px; border: 1px solid #455a64;
+            background: #ecf0f1; font-family: inherit; resize: vertical; outline: none; font-size: 15px;
+        }
+
+        #app { display: flex; gap: 20px; transition: all 0.3s ease; }
+        .layout-horizontal { flex-direction: column; }
+        .layout-horizontal .card { width: 100%; }
+        .layout-vertical { flex-direction: row; flex-wrap: wrap; }
+        .layout-vertical .card { width: calc(25% - 15px); min-width: 280px; flex-grow: 1; }
+
+        .card { 
+            border-radius: 10px; padding: 25px; padding-top: 45px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: space-between;
+            position: relative; transition: background-color 0.4s;
+        }
+
+        /* ابزارهای موقعیت و جابجایی بالای کادر */
+        .box-tools {
+            position: absolute; top: 10px; right: 15px;
+            display: flex; gap: 5px; align-items: center;
+        }
+        .box-number {
+            background: rgba(0, 0, 0, 0.1); color: #333; padding: 2px 10px; 
+            border-radius: 15px; font-size: 12px; font-weight: bold;
+        }
+        .move-arrow {
+            background: rgba(255,255,255,0.6); border: 1px solid #ccc; border-radius: 5px;
+            cursor: pointer; width: 26px; height: 26px; display: flex;
+            align-items: center; justify-content: center; font-size: 12px; transition: 0.2s;
+        }
+        .move-arrow:hover { background: #333; color: white; border-color: #333; }
+
+        .card-title {
+            font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 10px;
+            padding: 5px; border-bottom: 2px solid rgba(0,0,0,0.2); outline: none; transition: 0.3s;
+        }
+
+        .text-display {
+            text-align: justify; margin-bottom: 15px; font-size: 16px; flex-grow: 1;
+            min-height: 100px; padding: 10px; border-radius: 5px; border: 1px solid transparent;
+            transition: all 0.3s; outline: none; white-space: pre-wrap;
+        }
+
+        .card-title[contenteditable="true"], .text-display[contenteditable="true"] {
+            background-color: rgba(255, 255, 255, 0.6); border: 1px dashed #333;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .card-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+        .card-btn {
+            background-color: rgba(255, 255, 255, 0.7); color: #333; border: 1px solid #333;
+            padding: 8px 12px; border-radius: 5px; cursor: pointer; font-family: inherit; font-weight: bold;
+            transition: 0.2s; font-size: 13px;
+        }
+        .card-btn:hover { background-color: #333; color: #fff; }
+        
+        .btn-clear { border-color: #e74c3c; color: #e74c3c; }
+        .btn-clear:hover { background-color: #e74c3c; color: #fff; }
+        .btn-move { border-color: #2980b9; color: #2980b9; }
+        .btn-move:hover { background-color: #2980b9; color: #fff; }
+
+        .image-gallery {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; justify-content: center;
+        }
+        .img-wrapper { position: relative; max-width: 100%; }
+        .uploaded-img {
+            max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); object-fit: contain;
+        }
+        .delete-img-btn {
+            position: absolute; top: 5px; left: 5px; background: rgba(231, 76, 60, 0.9);
+            color: white; border: none; border-radius: 50%; width: 25px; height: 25px;
+            cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;
+        }
+
+        @media print {
+            body { background: #fff !important; padding: 0; }
+            .admin-panel, .card-controls, .delete-img-btn, .box-tools { display: none !important; }
+            #app { display: block; }
+            .card {
+                width: 100% !important; margin-bottom: 20px; page-break-inside: avoid;
+                border: 2px solid #ddd; background: #fff !important; box-shadow: none; padding: 20px;
+            }
+            .card-title { border-bottom: 2px solid #000; }
+        }
+    </style>
+</head>
+<body class="font-tahoma" id="body-tag">
+
+<div class="container">
+    <div style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 15px; color: #2c3e50;">
+        بسم الله الرحمن الرحیم
+    </div>
+
+    <div class="admin-panel">
+        <div class="panel-row">
+            <button class="action-btn btn-add" onclick="addCard()">➕ افزودن کادر جدید</button>
+            <button class="action-btn btn-layout" onclick="toggleLayout()">🔄 تغییر حالت (افقی/عمودی)</button>
+            <button class="action-btn btn-pdf" onclick="exportPDF()">📄 خروجی PDF</button>
+            
+            <select id="theme-selector" class="custom-select" onchange="changeTheme()">
+                <option value="0">🎨 رنگ‌های پاستلی (اصلی)</option>
+                <option value="1">🎨 رنگ‌های فسفری (روشن)</option>
+                <option value="2">🎨 رنگ‌های خاص (کلاسیک/آرام)</option>
+            </select>
+
+            <select id="font-selector" class="custom-select" onchange="changeFont()">
+                <option value="font-tahoma">🔤 فونت تاهوما</option>
+                <option value="font-times">🔤 فونت کلاسیک</option>
+                <option value="font-courier">🔤 فونت ماشین تحریر</option>
+            </select>
+
+            <button class="action-btn btn-download" onclick="downloadPermanentFile()">💾 ذخیره دائم (دانلود)</button>
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <div class="panel-row" style="width: 100%;">
+            <textarea id="global-notes" class="global-notes-area" placeholder="توضیحات کلی مربوط به یادداشت‌ها، راهنمای رنگ‌های هایلایت و سایر مطالب را اینجا بنویسید..."></textarea>
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <div class="panel-row">
+            <span style="color:white; font-size:14px; margin-left:10px;">ابزار متن (انتخاب کنید):</span>
+            <button class="action-btn btn-format" onmousedown="event.preventDefault(); formatText('bold')"><b>B بولد</b></button>
+            <button class="action-btn btn-format" onmousedown="event.preventDefault(); formatText('justifyRight')">⇲ راست‌چین</button>
+            <button class="action-btn btn-format" onmousedown="event.preventDefault(); formatText('justifyCenter')">≡ وسط‌چین</button>
+            <button class="action-btn btn-format" onmousedown="event.preventDefault(); formatText('justifyLeft')">⇱ چپ‌چین</button>
+            <button class="action-btn btn-format" onmousedown="event.preventDefault(); insertTextAtCursor('■ ')">■ مربع توپر</button>
+        </div>
+        
+        <div class="panel-row">
+            <span style="color:white; font-size:14px; margin-left:10px;">۱۰ رنگ هایلایت ملایم:</span>
+            <button class="color-circle" style="background:#fcf4bc;" onmousedown="event.preventDefault(); applyHighlight('#fcf4bc')" title="زرد ملایم"></button>
+            <button class="color-circle" style="background:#d4edda;" onmousedown="event.preventDefault(); applyHighlight('#d4edda')" title="سبز ملایم"></button>
+            <button class="color-circle" style="background:#f8d7da;" onmousedown="event.preventDefault(); applyHighlight('#f8d7da')" title="صورتی ملایم"></button>
+            <button class="color-circle" style="background:#d1ecf1;" onmousedown="event.preventDefault(); applyHighlight('#d1ecf1')" title="آبی ملایم"></button>
+            <button class="color-circle" style="background:#e2d9f3;" onmousedown="event.preventDefault(); applyHighlight('#e2d9f3')" title="بنفش ملایم"></button>
+            <button class="color-circle" style="background:#ffe5d0;" onmousedown="event.preventDefault(); applyHighlight('#ffe5d0')" title="نارنجی ملایم"></button>
+            <button class="color-circle" style="background:#d1f4fa;" onmousedown="event.preventDefault(); applyHighlight('#d1f4fa')" title="فیروزه‌ای ملایم"></button>
+            <button class="color-circle" style="background:#ffdfd3;" onmousedown="event.preventDefault(); applyHighlight('#ffdfd3')" title="هلویی ملایم"></button>
+            <button class="color-circle" style="background:#d0f0c0;" onmousedown="event.preventDefault(); applyHighlight('#d0f0c0')" title="لیمویی ملایم"></button>
+            <button class="color-circle" style="background:#e6e6fa;" onmousedown="event.preventDefault(); applyHighlight('#e6e6fa')" title="یاسی ملایم"></button>
+            <button class="action-btn btn-unhighlight" onmousedown="event.preventDefault(); applyHighlight('transparent')">🧽 حذف هایلایت</button>
+        </div>
+    </div>
+
+    <div id="app" class="layout-horizontal"></div>
+</div>
+
+<script id="permanent-data-script">
+let SAVED_DATA = ["متن خود را اینجا بنویسید یا پیست کنید..."];
+let SAVED_TITLES = ["عنوان کادر"];
+let SAVED_IMAGES = [[]]; 
+let SAVED_GLOBAL_NOTES = "";
+const SAVED_THEME = 0;
+const SAVED_FONT = "font-tahoma";
+</script>
+
+<script id="logic-script">
+    const palettes = {
+        0: ["#FFCDD2", "#F8BBD0", "#E1BEE7", "#D1C4E9", "#C5CAE9", "#BBDEFB", "#B3E5FC", "#B2EBF2", "#B2DFDB", "#C8E6C9", "#DCEDC8", "#F0F4C3", "#FFF9C4", "#FFECB3", "#FFE0B2", "#FFCCBC", "#D7CCC8", "#F5F5F5", "#CFD8DC", "#FFD54F", "#FFCDD2", "#F8BBD0", "#E1BEE7", "#D1C4E9", "#C5CAE9", "#BBDEFB", "#B3E5FC", "#B2EBF2", "#B2DFDB", "#C8E6C9"],
+        1: ["#ccff99", "#99ffcc", "#ffccff", "#ffff99", "#99ffff", "#ffb3b3", "#d9ffb3", "#b3ffd9", "#ffd9b3", "#ffb3d9", "#e6ffcc", "#ccffe6", "#ffcce6", "#e6ccff", "#ccffff", "#ffffcc", "#ffe6cc", "#ccffcc", "#ffcccc", "#e6e6ff", "#ccff99", "#99ffcc", "#ffccff", "#ffff99", "#99ffff", "#ffb3b3", "#d9ffb3", "#b3ffd9", "#ffd9b3", "#ffb3d9"],
+        2: ["#e4d5b7", "#d9b8c4", "#a8b5c2", "#e8d6ce", "#b3c2bf", "#d8e2dc", "#ffe5d9", "#ffcad4", "#f4acb7", "#9d8189", "#cad2c5", "#84a98c", "#52796f", "#e9edc9", "#fefae0", "#faedcb", "#c9e4de", "#c6def1", "#dbcdf0", "#f2c6de", "#e4d5b7", "#d9b8c4", "#a8b5c2", "#e8d6ce", "#b3c2bf", "#d8e2dc", "#ffe5d9", "#ffcad4", "#f4acb7", "#9d8189"]
+    };
+
+    let currentData = [...SAVED_DATA];
+    let currentTitles = SAVED_TITLES ? [...SAVED_TITLES] : ["عنوان کادر"];
+    let currentImages = SAVED_IMAGES ? [...SAVED_IMAGES] : [[]];
+    let currentTheme = SAVED_THEME;
+    let currentFont = SAVED_FONT;
+
+    document.getElementById('body-tag').className = currentFont;
+    document.getElementById('font-selector').value = currentFont;
+    document.getElementById('theme-selector').value = currentTheme;
+    document.getElementById('global-notes').value = SAVED_GLOBAL_NOTES || "";
+
+    function toggleLayout() {
+        const appContainer = document.getElementById('app');
+        appContainer.classList.toggle('layout-horizontal');
+        appContainer.classList.toggle('layout-vertical');
+    }
+
+    function exportPDF() { window.print(); }
+
+    function changeTheme() {
+        currentTheme = parseInt(document.getElementById('theme-selector').value);
+        updateBoxColors();
+    }
+
+    function updateBoxColors() {
+        const colors = palettes[currentTheme];
+        for (let i = 0; i < currentData.length; i++) {
+            const card = document.getElementById(`card-${i}`);
+            if(card) card.style.backgroundColor = colors[i % colors.length];
+        }
+    }
+
+    function changeFont() {
+        currentFont = document.getElementById('font-selector').value;
+        document.getElementById('body-tag').className = currentFont;
+    }
+
+    function formatText(command) { document.execCommand(command, false, null); }
+
+    function insertTextAtCursor(text) {
+        document.execCommand('insertText', false, text);
+    }
+
+    function applyHighlight(color) {
+        if (!document.execCommand('hiliteColor', false, color)) {
+            document.execCommand('backColor', false, color);
+        }
+    }
+
+    function saveAllOpenEdits() {
+        for (let i = 0; i < currentData.length; i++) {
+            const displayDiv = document.getElementById(`display-${i}`);
+            if (displayDiv && displayDiv.contentEditable === "true") {
+                toggleEdit(i);
+            }
+        }
+    }
+
+    function addCard() {
+        saveAllOpenEdits();
+        currentData.push("متن خود را اینجا بنویسید یا پیست کنید...");
+        currentTitles.push("عنوان کادر جدید");
+        currentImages.push([]);
+        renderBoxes();
+        
+        // اسکرول نرم به پایین
+        setTimeout(() => {
+            const lastCard = document.getElementById(`card-${currentData.length - 1}`);
+            if (lastCard) lastCard.scrollIntoView({behavior: "smooth", block: "center"});
+        }, 150);
+    }
+
+    function toggleEdit(index) {
+        const displayDiv = document.getElementById(`display-${index}`);
+        const titleDiv = document.getElementById(`title-${index}`);
+        const btn = document.getElementById(`btn-${index}`);
+        const isEditing = displayDiv.contentEditable === "true";
+
+        if (!isEditing) {
+            displayDiv.contentEditable = "true";
+            titleDiv.contentEditable = "true";
+            displayDiv.focus();
+            btn.innerText = "✓ ذخیره این کادر";
+            btn.style.backgroundColor = "#27ae60";
+            btn.style.color = "#fff";
+            btn.style.borderColor = "#27ae60";
+            
+            if(displayDiv.innerHTML.includes("متن خود را اینجا")) displayDiv.innerHTML = "";
+            if(titleDiv.innerHTML.includes("عنوان کادر")) titleDiv.innerHTML = "";
+        } else {
+            displayDiv.contentEditable = "false";
+            titleDiv.contentEditable = "false";
+            currentData[index] = displayDiv.innerHTML;
+            currentTitles[index] = titleDiv.innerHTML;
+            
+            if(currentData[index].trim() === "") displayDiv.innerHTML = "متن خود را اینجا بنویسید یا پیست کنید...";
+            if(currentTitles[index].trim() === "") titleDiv.innerHTML = "عنوان کادر";
+            
+            btn.innerText = "✎ ویرایش متن";
+            btn.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
+            btn.style.color = "#333";
+            btn.style.borderColor = "#333";
+        }
+    }
+
+    function swapCards(index1, index2) {
+        if(index2 < 0 || index2 >= currentData.length) return;
+        saveAllOpenEdits();
+        
+        [currentData[index1], currentData[index2]] = [currentData[index2], currentData[index1]];
+        [currentTitles[index1], currentTitles[index2]] = [currentTitles[index2], currentTitles[index1]];
+        [currentImages[index1], currentImages[index2]] = [currentImages[index2], currentImages[index1]];
+        
+        renderBoxes();
+    }
+
+    function moveCardTo(index) {
+        let newPos = prompt(`این کادر هم‌اکنون در جایگاه ${index + 1} قرار دارد.\nشماره جایگاه جدید را برای انتقال وارد کنید (1 تا ${currentData.length}):`);
+        if (newPos === null || newPos.trim() === "") return;
+        
+        newPos = parseInt(newPos) - 1;
+        if (isNaN(newPos) || newPos < 0 || newPos >= currentData.length) {
+            alert("❌ موقعیت وارد شده نامعتبر است.");
+            return;
+        }
+        if (newPos === index) return;
+
+        saveAllOpenEdits();
+
+        const movingData = currentData.splice(index, 1)[0];
+        const movingTitle = currentTitles.splice(index, 1)[0];
+        const movingImages = currentImages.splice(index, 1)[0];
+
+        currentData.splice(newPos, 0, movingData);
+        currentTitles.splice(newPos, 0, movingTitle);
+        currentImages.splice(newPos, 0, movingImages);
+
+        renderBoxes();
+
+        setTimeout(() => {
+            const newCard = document.getElementById(`card-${newPos}`);
+            if(newCard) newCard.scrollIntoView({behavior: "smooth", block: "center"});
+        }, 150);
+    }
+
+    function clearCard(index) {
+        if(confirm("آیا از پاک کردن کامل محتوای این کادر اطمینان دارید؟")) {
+            document.getElementById(`title-${index}`).innerHTML = "عنوان کادر";
+            document.getElementById(`display-${index}`).innerHTML = "متن خود را اینجا بنویسید یا پیست کنید...";
+            currentTitles[index] = "عنوان کادر";
+            currentData[index] = "متن خود را اینجا بنویسید یا پیست کنید...";
+            currentImages[index] = [];
+            renderImages(index);
+        }
+    }
+
+    function uploadImages(event, index) {
+        const files = event.target.files;
+        if (!files) return;
+        
+        for (let file of files) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Str = e.target.result;
+                if(!currentImages[index]) currentImages[index] = [];
+                currentImages[index].push(base64Str);
+                renderImages(index);
+            };
+            reader.readAsDataURL(file); 
+        }
+        event.target.value = ""; 
+    }
+
+    function removeImage(cardIndex, imgIndex) {
+        if(confirm("عکس حذف شود؟")) {
+            currentImages[cardIndex].splice(imgIndex, 1);
+            renderImages(cardIndex);
+        }
+    }
+
+    function renderImages(index) {
+        const container = document.getElementById(`img-container-${index}`);
+        container.innerHTML = '';
+        if(currentImages[index] && currentImages[index].length > 0) {
+            currentImages[index].forEach((src, imgIndex) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'img-wrapper';
+                wrapper.innerHTML = `
+                    <img src="${src}" class="uploaded-img" />
+                    <button class="delete-img-btn" onclick="removeImage(${index}, ${imgIndex})">❌</button>
+                `;
+                container.appendChild(wrapper);
+            });
+        }
+    }
+
+    function renderBoxes() {
+        const container = document.getElementById('app');
+        container.innerHTML = ''; 
+        const colors = palettes[currentTheme];
+
+        for (let i = 0; i < currentData.length; i++) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = `card-${i}`;
+            card.style.backgroundColor = colors[i % colors.length]; 
+
+            const textContent = currentData[i] || "متن خود را اینجا بنویسید یا پیست کنید...";
+            const titleContent = currentTitles[i] || "عنوان کادر";
+
+            card.innerHTML = `
+                <div class="box-tools">
+                    <span class="box-number">شماره ${i + 1}</span>
+                    ${i > 0 ? `<button class="move-arrow" onclick="swapCards(${i}, ${i - 1})" title="انتقال به بالا">🔼</button>` : ''}
+                    ${i < currentData.length - 1 ? `<button class="move-arrow" onclick="swapCards(${i}, ${i + 1})" title="انتقال به پایین">🔽</button>` : ''}
+                </div>
+
+                <div id="title-${i}" class="card-title font-tahoma" contenteditable="false">${titleContent}</div>
+                <div id="display-${i}" class="text-display" contenteditable="false">${textContent}</div>
+                
+                <div id="img-container-${i}" class="image-gallery"></div>
+                
+                <div class="card-controls">
+                    <button id="btn-${i}" class="card-btn" onclick="toggleEdit(${i})">✎ ویرایش</button>
+                    <button class="card-btn btn-move" onclick="moveCardTo(${i})">🔄 انتقال به...</button>
+                    <button class="card-btn btn-clear" onclick="clearCard(${i})">🗑 پاک کردن</button>
+                    <input type="file" accept="image/*" multiple id="file-${i}" style="display:none" onchange="uploadImages(event, ${i})">
+                    <button class="card-btn" onclick="document.getElementById('file-${i}').click()">📷 افزودن عکس</button>
+                </div>
+            `;
+            container.appendChild(card);
+            renderImages(i);
+
+            const displayDiv = document.getElementById(`display-${i}`);
+            displayDiv.addEventListener("paste", function(e) {
+                e.preventDefault();
+                let text = (e.originalEvent || e).clipboardData.getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+            const titleDiv = document.getElementById(`title-${i}`);
+            titleDiv.addEventListener("paste", function(e) {
+                e.preventDefault();
+                let text = (e.originalEvent || e).clipboardData.getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+        }
+    }
+
+    function downloadPermanentFile() {
+        saveAllOpenEdits(); 
+
+        let htmlClone = document.documentElement.cloneNode(true);
+        htmlClone.querySelector('#app').innerHTML = '';
+
+        let dataScriptEl = htmlClone.querySelector('#permanent-data-script');
+        let currentNotes = document.getElementById('global-notes').value;
+        
+        let newScriptContent = `\nlet SAVED_DATA = ${JSON.stringify(currentData, null, 4)};\n`;
+        newScriptContent += `let SAVED_TITLES = ${JSON.stringify(currentTitles, null, 4)};\n`;
+        newScriptContent += `let SAVED_IMAGES = ${JSON.stringify(currentImages, null, 4)};\n`;
+        newScriptContent += `let SAVED_GLOBAL_NOTES = ${JSON.stringify(currentNotes)};\n`;
+        newScriptContent += `const SAVED_THEME = ${currentTheme};\n`;
+        newScriptContent += `const SAVED_FONT = "${currentFont}";\n`;
+        
+        dataScriptEl.textContent = newScriptContent;
+
+        let finalHTML = "<!DOCTYPE html>\n" + htmlClone.outerHTML;
+        let blob = new Blob([finalHTML], { type: "text/html;charset=utf-8" });
+        let url = URL.createObjectURL(blob);
+        
+        let a = document.createElement('a');
+        a.href = url;
+        
+        let now = new Date();
+        let dateStr = now.getFullYear() + "-" + (now.getMonth()+1) + "-" + now.getDate() + "_" + now.getHours() + "-" + now.getMinutes() + "-" + now.getSeconds();
+        
+        a.download = "MyNotes_" + dateStr + ".html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    window.onload = renderBoxes;
+</script>
+
+</body></html>
